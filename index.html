@@ -383,7 +383,10 @@ function App(){
       h("footer",{style:{borderTop:"1px solid #555",paddingTop:10,marginTop:16,fontSize:10,color:"#666",textAlign:"center",fontFamily:"var(--m)",lineHeight:1.6}},
         "Baseline: INL/RPT-24-78810 \u00b7 NEI 2024 Survey \u00b7 DOE Liftoff (2024) \u00b7 Kimley-Horn Nuclear Task Force",
         h("br"),
-        "Live fleet sync: EIA-860M Inventory of Operable Generators \u00b7 Wikidata"+(sync.ts?" \u00b7 last checked "+new Date(sync.ts).toLocaleDateString():""))));
+        "Live fleet sync: EIA-860M Inventory of Operable Generators \u00b7 Wikidata"+(sync.ts?" \u00b7 last checked "+new Date(sync.ts).toLocaleDateString():""),
+        h("br"),
+        h("span",null,"Uprate map concept after Emmet Penney \u2014 ",
+          h("a",{href:"https://nuclearbarbarian.github.io/NukeUprateDashboard/",target:"_blank",rel:"noopener",style:{color:GOLD}},"Nuclear Uprate Opportunity Map")))));
 }
 ReactDOM.createRoot(document.getElementById("root")).render(h(App));
 
