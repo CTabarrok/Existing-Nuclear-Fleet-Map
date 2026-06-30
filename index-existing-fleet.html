@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>KH Nuclear Task Force — Existing Fleet Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--s:'Source Serif 4','Georgia',serif;--m:'IBM Plex Mono','Consolas',monospace}
+body{background:#2D2D2D;color:#ddd;font-family:var(--s)}
+.b{padding:4px 12px;font-size:11px;border-radius:2px;cursor:pointer;font-family:var(--m);letter-spacing:.03em;transition:all .12s;display:inline-block}
+.bo{font-weight:700;border:1px solid #C4A046;background:#C4A046;color:#1A1A1A}
+.bf{font-weight:400;border:1px solid #555;background:transparent;color:#999}
+.b:hover{opacity:.85}
+.b:disabled{cursor:not-allowed}
+.si{display:flex;align-items:center;gap:8px;padding:6px 8px;cursor:pointer;border-bottom:1px solid #333;transition:background .12s}
+.si:hover{background:#2D2D2D}
+@keyframes pu{0%,100%{opacity:.3}50%{opacity:1}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+"use strict";
+var UP=[{n:"Farley 1",s:"AL",t:"PWR",lp:"W 3-Loop",ref:2775,up:0.063,cap:0.2,add:358,lat:31.22,lon:-85.11,mk:"Reg."},
+{n:"Farley 2",s:"AL",t:"PWR",lp:"W 3-Loop",ref:2775,up:0.063,cap:0.2,add:358,lat:31.22,lon:-85.11,mk:"Reg."},
+{n:"Browns Ferry 1",s:"AL",t:"BWR",lp:"GE BWR/4",ref:3952,up:0.2,cap:0.2,add:0,lat:34.7,lon:-87.12,mk:"Reg."},
+{n:"Browns Ferry 2",s:"AL",t:"BWR",lp:"GE BWR/4",ref:3952,up:0.198,cap:0.2,add:0,lat:34.7,lon:-87.12,mk:"Reg."},
+{n:"Browns Ferry 3",s:"AL",t:"BWR",lp:"GE BWR/4",ref:3952,up:0.198,cap:0.2,add:0,lat:34.7,lon:-87.12,mk:"Reg."},
+{n:"Arkansas Nuclear 1",s:"AR",t:"PWR",lp:"B&W 2-Loop",ref:2568,up:0,cap:0.016,add:41,lat:35.31,lon:-93.23,mk:"Reg."},
+{n:"Arkansas Nuclear 2",s:"AR",t:"PWR",lp:"CE 2-Loop",ref:3026,up:0.075,cap:0.18,add:296,lat:35.31,lon:-93.23,mk:"Reg."},
+{n:"Palo Verde 1",s:"AZ",t:"PWR",lp:"CE Sys 80",ref:3990,up:0.05,cap:0.05,add:0,lat:33.39,lon:-112.86,mk:"Reg."},
+{n:"Palo Verde 2",s:"AZ",t:"PWR",lp:"CE Sys 80",ref:3990,up:0.05,cap:0.05,add:0,lat:33.39,lon:-112.86,mk:"Reg."},
+{n:"Palo Verde 3",s:"AZ",t:"PWR",lp:"CE Sys 80",ref:3990,up:0.05,cap:0.05,add:0,lat:33.39,lon:-112.86,mk:"Reg."},
+{n:"Diablo Canyon 1",s:"CA",t:"PWR",lp:"W 4-Loop",ref:3411,up:0.02,cap:0.09,add:234,lat:35.21,lon:-120.86,mk:"Reg."},
+{n:"Diablo Canyon 2",s:"CA",t:"PWR",lp:"W 4-Loop",ref:3411,up:0,cap:0.09,add:307,lat:35.21,lon:-120.86,mk:"Reg."},
+{n:"Millstone 2",s:"CT",t:"PWR",lp:"CE 2-Loop",ref:2700,up:0.05,cap:0.18,add:334,lat:41.31,lon:-72.17,mk:"Merch."},
+{n:"Millstone 3",s:"CT",t:"PWR",lp:"W 4-Loop",ref:3650,up:0.087,cap:0.09,add:0,lat:41.31,lon:-72.17,mk:"Merch."},
+{n:"St. Lucie 1",s:"FL",t:"PWR",lp:"CE 2-Loop",ref:3020,up:0.181,cap:0.18,add:0,lat:27.35,lon:-80.25,mk:"Reg."},
+{n:"St. Lucie 2",s:"FL",t:"PWR",lp:"CE 2-Loop",ref:3020,up:0.181,cap:0.18,add:0,lat:27.35,lon:-80.25,mk:"Reg."},
+{n:"Turkey Point 3",s:"FL",t:"PWR",lp:"W 3-Loop",ref:2644,up:0.202,cap:0.2,add:0,lat:25.44,lon:-80.33,mk:"Reg."},
+{n:"Turkey Point 4",s:"FL",t:"PWR",lp:"W 3-Loop",ref:2644,up:0.202,cap:0.2,add:0,lat:25.44,lon:-80.33,mk:"Reg."},
+{n:"Hatch 1",s:"GA",t:"BWR",lp:"GE BWR/4",ref:2804,up:0.151,cap:0.2,add:119,lat:31.93,lon:-82.34,mk:"Reg."},
+{n:"Hatch 2",s:"GA",t:"BWR",lp:"GE BWR/4",ref:2804,up:0.151,cap:0.2,add:119,lat:31.93,lon:-82.34,mk:"Reg."},
+{n:"Vogtle 1",s:"GA",t:"PWR",lp:"W 4-Loop",ref:3626,up:0.063,cap:0.09,add:93,lat:33.14,lon:-81.76,mk:"Reg."},
+{n:"Vogtle 2",s:"GA",t:"PWR",lp:"W 4-Loop",ref:3626,up:0.063,cap:0.09,add:93,lat:33.14,lon:-81.76,mk:"Reg."},
+{n:"Vogtle 3",s:"GA",t:"PWR",lp:"W AP1000",ref:3400,up:0,cap:0,add:0,lat:33.14,lon:-81.76,mk:"Reg."},
+{n:"Vogtle 4",s:"GA",t:"PWR",lp:"W AP1000",ref:3400,up:0,cap:0,add:0,lat:33.14,lon:-81.76,mk:"Reg."},
+{n:"Braidwood 1",s:"IL",t:"PWR",lp:"W 4-Loop",ref:3645,up:0.067,cap:0.09,add:79,lat:41.24,lon:-88.23,mk:"Merch."},
+{n:"Braidwood 2",s:"IL",t:"PWR",lp:"W 4-Loop",ref:3645,up:0.067,cap:0.09,add:79,lat:41.24,lon:-88.23,mk:"Merch."},
+{n:"Byron 1",s:"IL",t:"PWR",lp:"W 4-Loop",ref:3645,up:0.067,cap:0.09,add:79,lat:42.08,lon:-89.28,mk:"Merch."},
+{n:"Byron 2",s:"IL",t:"PWR",lp:"W 4-Loop",ref:3645,up:0.067,cap:0.09,add:79,lat:42.08,lon:-89.28,mk:"Merch."},
+{n:"Clinton",s:"IL",t:"BWR",lp:"GE BWR/6",ref:3473,up:0.2,cap:0.2,add:0,lat:40.17,lon:-88.83,mk:"Merch."},
+{n:"Dresden 2",s:"IL",t:"BWR",lp:"GE BWR/3",ref:2957,up:0.17,cap:0.2,add:76,lat:41.39,lon:-88.27,mk:"Merch."},
+{n:"Dresden 3",s:"IL",t:"BWR",lp:"GE BWR/3",ref:2957,up:0.17,cap:0.2,add:76,lat:41.39,lon:-88.27,mk:"Merch."},
+{n:"LaSalle 1",s:"IL",t:"BWR",lp:"GE BWR/5",ref:3546,up:0.067,cap:0.2,add:443,lat:41.24,lon:-88.67,mk:"Merch."},
+{n:"LaSalle 2",s:"IL",t:"BWR",lp:"GE BWR/5",ref:3546,up:0.067,cap:0.2,add:443,lat:41.24,lon:-88.67,mk:"Merch."},
+{n:"Quad Cities 1",s:"IL",t:"BWR",lp:"GE BWR/3",ref:2957,up:0.178,cap:0.2,add:55,lat:41.73,lon:-90.31,mk:"Merch."},
+{n:"Quad Cities 2",s:"IL",t:"BWR",lp:"GE BWR/3",ref:2957,up:0.178,cap:0.2,add:55,lat:41.73,lon:-90.31,mk:"Merch."},
+{n:"Wolf Creek",s:"KS",t:"PWR",lp:"W 4-Loop",ref:3565,up:0.045,cap:0.09,add:154,lat:38.24,lon:-95.69,mk:"Reg."},
+{n:"River Bend",s:"LA",t:"BWR",lp:"GE BWR/6",ref:3091,up:0.068,cap:0.2,add:383,lat:30.76,lon:-91.33,mk:"Reg."},
+{n:"Waterford 3",s:"LA",t:"PWR",lp:"CE 2-Loop",ref:3716,up:0.096,cap:0.18,add:284,lat:30,lon:-90.47,mk:"Reg."},
+{n:"Calvert Cliffs 1",s:"MD",t:"PWR",lp:"CE 2-Loop",ref:2737,up:0.07,cap:0.18,add:282,lat:38.43,lon:-76.44,mk:"Merch."},
+{n:"Calvert Cliffs 2",s:"MD",t:"PWR",lp:"CE 2-Loop",ref:2737,up:0.07,cap:0.18,add:282,lat:38.43,lon:-76.44,mk:"Merch."},
+{n:"D.C. Cook 1",s:"MI",t:"PWR",lp:"W 4-Loop",ref:3304,up:0.017,cap:0.09,add:249,lat:41.98,lon:-86.56,mk:"Reg."},
+{n:"D.C. Cook 2",s:"MI",t:"PWR",lp:"W 4-Loop",ref:3468,up:0.017,cap:0.09,add:144,lat:41.98,lon:-86.56,mk:"Reg."},
+{n:"Fermi 2",s:"MI",t:"BWR",lp:"GE BWR/4",ref:3486,up:0.04,cap:0.2,add:536,lat:41.96,lon:-83.26,mk:"Merch."},
+{n:"Monticello",s:"MN",t:"BWR",lp:"GE BWR/3",ref:2004,up:0.2,cap:0.2,add:0,lat:45.33,lon:-93.85,mk:"Reg."},
+{n:"Prairie Island 1",s:"MN",t:"PWR",lp:"W 2-Loop",ref:1677,up:0.016,cap:0.185,add:279,lat:44.62,lon:-92.63,mk:"Reg."},
+{n:"Prairie Island 2",s:"MN",t:"PWR",lp:"W 2-Loop",ref:1677,up:0.016,cap:0.185,add:279,lat:44.62,lon:-92.63,mk:"Reg."},
+{n:"Grand Gulf",s:"MS",t:"BWR",lp:"GE BWR/6",ref:4408,up:0.15,cap:0.2,add:191,lat:32,lon:-91.05,mk:"Reg."},
+{n:"Callaway",s:"MO",t:"PWR",lp:"W 4-Loop",ref:3565,up:0.045,cap:0.09,add:154,lat:38.76,lon:-91.78,mk:"Reg."},
+{n:"Brunswick 1",s:"NC",t:"BWR",lp:"GE BWR/4",ref:2923,up:0.208,cap:0.2,add:0,lat:33.96,lon:-78.01,mk:"Reg."},
+{n:"Brunswick 2",s:"NC",t:"BWR",lp:"GE BWR/4",ref:2923,up:0.208,cap:0.2,add:0,lat:33.96,lon:-78.01,mk:"Reg."},
+{n:"McGuire 1",s:"NC",t:"PWR",lp:"W 4-Loop",ref:3411,up:0.017,cap:0.09,add:245,lat:35.43,lon:-80.95,mk:"Reg."},
+{n:"McGuire 2",s:"NC",t:"PWR",lp:"W 4-Loop",ref:3411,up:0.017,cap:0.09,add:245,lat:35.43,lon:-80.95,mk:"Reg."},
+{n:"Shearon Harris",s:"NC",t:"PWR",lp:"W 3-Loop",ref:2900,up:0.062,cap:0.2,add:378,lat:35.63,lon:-78.96,mk:"Reg."},
+{n:"Cooper",s:"NE",t:"BWR",lp:"GE BWR/4",ref:2419,up:0.016,cap:0.2,add:661,lat:40.36,lon:-95.64,mk:"Reg."},
+{n:"Seabrook",s:"NH",t:"PWR",lp:"W 4-Loop",ref:3648,up:0.07,cap:0.09,add:69,lat:42.9,lon:-70.85,mk:"Merch."},
+{n:"Hope Creek",s:"NJ",t:"BWR",lp:"GE BWR/4",ref:3902,up:0.185,cap:0.2,add:50,lat:39.47,lon:-75.54,mk:"Merch."},
+{n:"Salem 1",s:"NJ",t:"PWR",lp:"W 4-Loop",ref:3459,up:0.034,cap:0.09,add:186,lat:39.46,lon:-75.54,mk:"Merch."},
+{n:"Salem 2",s:"NJ",t:"PWR",lp:"W 4-Loop",ref:3459,up:0.014,cap:0.09,add:259,lat:39.46,lon:-75.54,mk:"Merch."},
+{n:"FitzPatrick",s:"NY",t:"BWR",lp:"GE BWR/4",ref:2536,up:0.04,cap:0.2,add:390,lat:43.52,lon:-76.4,mk:"Merch."},
+{n:"Ginna",s:"NY",t:"PWR",lp:"W 2-Loop",ref:1775,up:0.168,cap:0.185,add:26,lat:43.28,lon:-77.31,mk:"Merch."},
+{n:"Nine Mile Pt 1",s:"NY",t:"BWR",lp:"GE BWR/2",ref:1850,up:0,cap:0.2,add:370,lat:43.52,lon:-76.41,mk:"Merch."},
+{n:"Nine Mile Pt 2",s:"NY",t:"BWR",lp:"GE BWR/5",ref:3988,up:0.199,cap:0.2,add:0,lat:43.52,lon:-76.41,mk:"Merch."},
+{n:"Davis-Besse",s:"OH",t:"PWR",lp:"B&W 2-Loop",ref:2817,up:0.016,cap:0.02,add:0,lat:41.6,lon:-83.09,mk:"Merch."},
+{n:"Perry 1",s:"OH",t:"BWR",lp:"GE BWR/6",ref:3756,up:0.05,cap:0.2,add:537,lat:41.8,lon:-81.14,mk:"Merch."},
+{n:"Beaver Valley 1",s:"PA",t:"PWR",lp:"W 3-Loop",ref:2900,up:0.095,cap:0.2,add:278,lat:40.62,lon:-80.43,mk:"Merch."},
+{n:"Beaver Valley 2",s:"PA",t:"PWR",lp:"W 3-Loop",ref:2900,up:0.095,cap:0.2,add:278,lat:40.62,lon:-80.43,mk:"Merch."},
+{n:"Limerick 1",s:"PA",t:"BWR",lp:"GE BWR/4",ref:3515,up:0.067,cap:0.2,add:439,lat:40.22,lon:-75.59,mk:"Merch."},
+{n:"Limerick 2",s:"PA",t:"BWR",lp:"GE BWR/4",ref:3515,up:0.067,cap:0.2,add:439,lat:40.22,lon:-75.59,mk:"Merch."},
+{n:"Peach Bottom 2",s:"PA",t:"BWR",lp:"GE BWR/4",ref:4016,up:0.219,cap:0.2,add:0,lat:39.76,lon:-76.27,mk:"Merch."},
+{n:"Peach Bottom 3",s:"PA",t:"BWR",lp:"GE BWR/4",ref:4016,up:0.219,cap:0.2,add:0,lat:39.76,lon:-76.27,mk:"Merch."},
+{n:"Susquehanna 1",s:"PA",t:"BWR",lp:"GE BWR/4",ref:3952,up:0.197,cap:0.2,add:0,lat:41.09,lon:-76.15,mk:"Merch."},
+{n:"Susquehanna 2",s:"PA",t:"BWR",lp:"GE BWR/4",ref:3952,up:0.197,cap:0.2,add:0,lat:41.09,lon:-76.15,mk:"Merch."},
+{n:"Catawba 1",s:"SC",t:"PWR",lp:"W 4-Loop",ref:3469,up:0.017,cap:0.09,add:249,lat:35.05,lon:-81.07,mk:"Reg."},
+{n:"Catawba 2",s:"SC",t:"PWR",lp:"W 4-Loop",ref:3411,up:0,cap:0.09,add:307,lat:35.05,lon:-81.07,mk:"Reg."},
+{n:"Oconee 1",s:"SC",t:"PWR",lp:"B&W 2-Loop",ref:2568,up:0.016,cap:0.016,add:0,lat:34.79,lon:-82.9,mk:"Reg."},
+{n:"Oconee 2",s:"SC",t:"PWR",lp:"B&W 2-Loop",ref:2568,up:0.016,cap:0.016,add:0,lat:34.79,lon:-82.9,mk:"Reg."},
+{n:"Oconee 3",s:"SC",t:"PWR",lp:"B&W 2-Loop",ref:2568,up:0.016,cap:0.016,add:0,lat:34.79,lon:-82.9,mk:"Reg."},
+{n:"Robinson 2",s:"SC",t:"PWR",lp:"W 3-Loop",ref:2339,up:0.063,cap:0.2,add:302,lat:34.4,lon:-80.16,mk:"Reg."},
+{n:"Summer",s:"SC",t:"PWR",lp:"W 3-Loop",ref:2900,up:0.045,cap:0.2,add:430,lat:34.3,lon:-81.32,mk:"Reg."},
+{n:"Sequoyah 1",s:"TN",t:"PWR",lp:"W 4-Loop",ref:3455,up:0.013,cap:0.09,add:263,lat:35.23,lon:-85.09,mk:"Reg."},
+{n:"Sequoyah 2",s:"TN",t:"PWR",lp:"W 4-Loop",ref:3455,up:0.013,cap:0.09,add:263,lat:35.23,lon:-85.09,mk:"Reg."},
+{n:"Watts Bar 1",s:"TN",t:"PWR",lp:"W 4-Loop",ref:3459,up:0.014,cap:0.09,add:259,lat:35.6,lon:-84.79,mk:"Reg."},
+{n:"Watts Bar 2",s:"TN",t:"PWR",lp:"W 4-Loop",ref:3459,up:0.014,cap:0.09,add:259,lat:35.6,lon:-84.79,mk:"Reg."},
+{n:"Comanche Peak 1",s:"TX",t:"PWR",lp:"W 4-Loop",ref:3612,up:0.06,cap:0.09,add:104,lat:32.3,lon:-97.79,mk:"Merch."},
+{n:"Comanche Peak 2",s:"TX",t:"PWR",lp:"W 4-Loop",ref:3612,up:0.06,cap:0.09,add:103,lat:32.3,lon:-97.79,mk:"Merch."},
+{n:"South Texas 1",s:"TX",t:"PWR",lp:"W 4-Loop",ref:3853,up:0.014,cap:0.09,add:289,lat:28.8,lon:-96.05,mk:"Merch."},
+{n:"South Texas 2",s:"TX",t:"PWR",lp:"W 4-Loop",ref:3853,up:0.014,cap:0.09,add:289,lat:28.8,lon:-96.05,mk:"Merch."},
+{n:"North Anna 1",s:"VA",t:"PWR",lp:"W 3-Loop",ref:2940,up:0.059,cap:0.2,add:392,lat:38.06,lon:-77.79,mk:"Reg."},
+{n:"North Anna 2",s:"VA",t:"PWR",lp:"W 3-Loop",ref:2940,up:0.059,cap:0.2,add:392,lat:38.06,lon:-77.79,mk:"Reg."},
+{n:"Surry 1",s:"VA",t:"PWR",lp:"W 3-Loop",ref:2587,up:0.06,cap:0.2,add:343,lat:37.17,lon:-76.7,mk:"Reg."},
+{n:"Surry 2",s:"VA",t:"PWR",lp:"W 3-Loop",ref:2587,up:0.06,cap:0.2,add:343,lat:37.17,lon:-76.7,mk:"Reg."},
+{n:"Columbia Generating",s:"WA",t:"BWR",lp:"GE BWR/5",ref:3544,up:0.059,cap:0.2,add:470,lat:46.47,lon:-119.33,mk:"Reg."},
+{n:"Point Beach 1",s:"WI",t:"PWR",lp:"W 2-Loop",ref:1800,up:0.186,cap:0.185,add:0,lat:44.28,lon:-87.54,mk:"Reg."},
+{n:"Point Beach 2",s:"WI",t:"PWR",lp:"W 2-Loop",ref:1800,up:0.186,cap:0.185,add:0,lat:44.28,lon:-87.54,mk:"Reg."}];
+var FP={"1":"AL","2":"AK","4":"AZ","5":"AR","6":"CA","8":"CO","9":"CT","10":"DE","12":"FL","13":"GA","15":"HI","16":"ID","17":"IL","18":"IN","19":"IA","20":"KS","21":"KY","22":"LA","23":"ME","24":"MD","25":"MA","26":"MI","27":"MN","28":"MS","29":"MO","30":"MT","31":"NE","32":"NV","33":"NH","34":"NJ","35":"NM","36":"NY","37":"NC","38":"ND","39":"OH","40":"OK","41":"OR","42":"PA","44":"RI","45":"SC","46":"SD","47":"TN","48":"TX","49":"UT","50":"VT","51":"VA","53":"WA","54":"WV","55":"WI","56":"WY"};
+
+var h=React.createElement,uS=React.useState,uE=React.useEffect,uM=React.useMemo,uR=React.useRef;
+
+/* ---- palette ---- */
+var GOLD="#C4A046",GOLD_DIM="#7d6526",GRAY="#777",BG="#2D2D2D",PANEL="#1A1A1A";
+
+/* ---- persistence (degrades silently in sandboxed viewers) ---- */
+function lsGet(k){try{return JSON.parse(localStorage.getItem("khfleet_"+k));}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem("khfleet_"+k,JSON.stringify(v));}catch(e){}}
+
+/* ---- matching helpers ---- */
+function norm(s){return (s||"").toLowerCase().replace(/\([^)]*\)/g," ").replace(/\bpt\b/g,"point").replace(/\bmt\b/g,"mount").replace(/\bft\b/g,"fort").replace(/nuclear|generating|power|plant|station|energy|center|centre|\bunit\b|\bthe\b/g,"").replace(/[^a-z0-9]/g,"");}
+function hav(a,b,c,d){var R=6371,t=Math.PI/180,dLa=(c-a)*t,dLo=(d-b)*t;var x=Math.sin(dLa/2)*Math.sin(dLa/2)+Math.cos(a*t)*Math.cos(c*t)*Math.sin(dLo/2)*Math.sin(dLo/2);return 2*R*Math.asin(Math.min(1,Math.sqrt(x)));}
+function nameMatch(a,b){var na=norm(a),nb=norm(b);return !!(na&&nb&&(na===nb||na.indexOf(nb)>=0||nb.indexOf(na)>=0));}
+/* a curated site is "covered" by a live plant via coordinates (when present) or matched name */
+function covered(p,s){if(isFinite(p.lat)&&isFinite(p.lon)&&hav(p.lat,p.lon,s.lat,s.lon)<40)return true;return nameMatch(p.name,s.nm);}
+
+/* ---- live sources ---- */
+function fetchWikidata(){
+  var q='SELECT ?l ?c ?cap ?stt WHERE{?p wdt:P31 wd:Q134447;wdt:P17 wd:Q30.OPTIONAL{?p wdt:P625 ?c.}OPTIONAL{?p wdt:P2109 ?cap.}OPTIONAL{?p wdt:P5817 ?s.?s rdfs:label ?stt.FILTER(LANG(?stt)="en")}?p rdfs:label ?l.FILTER(LANG(?l)="en")}';
+  return fetch("https://query.wikidata.org/sparql?format=json&query="+encodeURIComponent(q),{headers:{Accept:"application/sparql-results+json"}})
+   .then(function(r){if(!r.ok)throw new Error("Wikidata "+r.status);return r.json();})
+   .then(function(j){var seen={},out=[];
+     j.results.bindings.forEach(function(b){
+       var name=b.l.value,st=(b.stt&&b.stt.value||"").toLowerCase();
+       if(/decommiss|cancel|propos|postpon|former|never/.test(st))return;        // exclude clearly-not-operating
+       var lat=NaN,lon=NaN;if(b.c){var m=/Point\(([-\d.]+) ([-\d.]+)\)/.exec(b.c.value);if(m){lon=+m[1];lat=+m[2];}}
+       var k=norm(name);if(seen[k])return;seen[k]=1;
+       out.push({name:name,lat:lat,lon:lon,cap:b.cap?+b.cap.value:null,status:st||"operating"});});
+     return {operating:out,pipeline:[],source:"Wikidata"};});
+}
+function fetchEIA(key){
+  var u="https://api.eia.gov/v2/electricity/operating-generator-capacity/data/?api_key="+encodeURIComponent(key)+
+    "&frequency=monthly&data[0]=net-summer-capacity-mw&data[1]=nameplate-capacity-mw"+
+    "&facets[energy_source_code][]=NUC&sort[0][column]=period&sort[0][direction]=desc&offset=0&length=5000";
+  return fetch(u).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error((j&&j.error&&j.error.message)||("EIA "+r.status));return j;});})
+   .then(function(j){
+     var rows=(j.response&&j.response.data)||[];if(!rows.length)throw new Error("EIA returned no nuclear rows");
+     var maxP="";rows.forEach(function(r){if(r.period>maxP)maxP=r.period;});
+     var latest=rows.filter(function(r){return r.period===maxP;});
+     var byPlant={};
+     latest.forEach(function(r){
+       var id=r.plantid||r.plantName,nm=r.plantName||("Plant "+id);
+       var stat=(r.statusDescription||r.status||"").toString();
+       var cap=parseFloat(r["net-summer-capacity-mw"]||r["nameplate-capacity-mw"]||0)||0;
+       var lat=parseFloat(r.latitude),lon=parseFloat(r.longitude);
+       if(!byPlant[id])byPlant[id]={name:nm,state:r.stateid||r.state||"",lat:lat,lon:lon,cap:0,statuses:{}};
+       var P=byPlant[id];P.cap+=cap;if(!isFinite(P.lat)&&isFinite(lat)){P.lat=lat;P.lon=lon;}P.statuses[stat]=1;});
+     var op=[],pipe=[];
+     Object.keys(byPlant).forEach(function(id){var P=byPlant[id];var ss=Object.keys(P.statuses).join(" ").toUpperCase();
+       var operating=/\(OP\)|OPERATING|\(SB\)|STANDBY/.test(ss);
+       P.status=Object.keys(P.statuses).filter(Boolean)[0]||"";
+       (operating?op:pipe).push(P);});
+     return {operating:op,pipeline:pipe,source:"EIA-860M ("+maxP+")"};});
+}
+
+function App(){
+  var _a=uS(null),topo=_a[0],setTopo=_a[1];
+  var _b=uS(null),sel=_b[0],setSel=_b[1];
+  var _c=uS(null),hov=_c[0],setHov=_c[1];
+  var _d=uS({x:0,y:0}),hp=_d[0],setHp=_d[1];
+  var _f=uS({type:"All"}),filt=_f[0],setFilt=_f[1];
+  var _g=uS("cap"),lens=_g[0],setLens=_g[1];                      // "cap" = fleet capacity, "uprate" = headroom lens
+  var _z=uS({k:1,x:0,y:0}),zm=_z[0],setZm=_z[1];
+  var EIA_KEY="Qeawxbka4fXmBzJoWvgfzlPgw93Wc3hU7WSTOSar"; // KH Nuclear Task Force key — change in the panel anytime
+  var _s=uS(function(){var c=lsGet("sync")||{};return {busy:false,open:false,source:"eia",eiaKey:lsGet("eiakey")||EIA_KEY,ts:c.ts||null,res:c.res||null,err:null};}),sync=_s[0],setSync=_s[1];
+  var mr=uR(null),dragging=uR(false),dragStart=uR({x:0,y:0}),autoRan=uR(false);
+  var proj=uM(function(){return d3.geoAlbersUsa().scale(1080).translate([476,296]);},[]);
+  var path=uM(function(){return d3.geoPath().projection(proj);},[proj]);
+  uE(function(){fetch("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(function(r){return r.json();}).then(setTopo);},[]);
+
+  var sts=uM(function(){return topo?topojson.feature(topo,topo.objects.states).features:[];},[topo]);
+  var fUp=uM(function(){return UP.filter(function(r){return filt.type==="All"||r.t===filt.type;});},[filt]);
+  var sites=uM(function(){var m={};fUp.forEach(function(r){var k=r.lat+"_"+r.lon;if(!m[k]){m[k]={lat:r.lat,lon:r.lon,ps:[],ref:0,add:0,st:r.s};}m[k].ps.push(r);m[k].ref+=r.ref;m[k].add+=r.add;});
+    var arr=Object.values(m);arr.forEach(function(s){s.mwe=s.ref/3;s.nn=norm(s.ps[0].n.replace(/ \d+$/,""));});return arr;},[fUp]);
+  var mxMwe=uM(function(){return Math.max.apply(null,sites.map(function(s){return s.mwe;}).concat([1]));},[sites]);
+  var mxAdd=uM(function(){return Math.max.apply(null,sites.map(function(s){return s.add;}).concat([1]));},[sites]);
+  var st=uM(function(){var ref=fUp.reduce(function(a,r){return a+r.ref;},0),add=fUp.reduce(function(a,r){return a+r.add;},0);
+    return {u:fUp.length,sites:sites.length,gwe:(ref/3/1000).toFixed(1),up:(add/3/1000).toFixed(1)};},[fUp,sites]);
+
+  /* ---- run a sync ---- */
+  function runSync(which){
+    setSync(function(p){return Object.assign({},p,{busy:true,err:null});});
+    var allSites={};UP.forEach(function(r){var k=r.lat+"_"+r.lon;if(!allSites[k])allSites[k]={lat:r.lat,lon:r.lon,nm:r.n.replace(/ \d+$/,""),st:r.s};});
+    var SA=Object.values(allSites);
+    var job=which==="eia"?fetchEIA(sync.eiaKey):fetchWikidata();
+    job.then(function(live){
+      var add=[],matched=0;
+      live.operating.forEach(function(p){if(SA.some(function(s){return covered(p,s);}))matched++;else add.push({name:p.name,state:p.state||"",cap:p.cap});});
+      var review=[];
+      SA.forEach(function(s){if(!live.operating.some(function(p){return covered(p,s);}))review.push({name:s.nm,st:s.st});});
+      var res={source:live.source,matched:matched,add:add,review:review,
+               pipeline:(live.pipeline||[]).map(function(p){return {name:p.name,state:p.state||"",status:p.status||"",cap:p.cap};})};
+      var ts=new Date().toISOString();
+      lsSet("sync",{ts:ts,res:res});
+      setSync(function(prev){return Object.assign({},prev,{busy:false,ts:ts,res:res,err:null});});
+    }).catch(function(e){setSync(function(prev){return Object.assign({},prev,{busy:false,err:e.message});});});
+  }
+  /* auto-check once on load so the map self-reports drift */
+  uE(function(){if(topo&&!autoRan.current){autoRan.current=true;var last=sync.ts?(Date.now()-new Date(sync.ts).getTime()):1e15;
+    if(last>6*36e5){runSync(sync.source);}}},[topo]);
+
+  function Btn(p){return h("button",{className:"b "+(p.on?"bo":"bf"),onClick:p.onClick},p.children);}
+  function doHov(d,ev){setHov(d);if(mr.current){var b=mr.current.getBoundingClientRect();setHp({x:ev.clientX-b.left,y:ev.clientY-b.top});}}
+  function onWheel(ev){ev.preventDefault();var d=ev.deltaY>0?0.85:1.18;var nk=Math.max(0.6,Math.min(8,zm.k*d));if(mr.current){var b=mr.current.getBoundingClientRect();var mx=ev.clientX-b.left,my=ev.clientY-b.top;setZm({k:nk,x:mx-(mx-zm.x)*(nk/zm.k),y:my-(my-zm.y)*(nk/zm.k)});}}
+  function onMD(ev){dragging.current=true;dragStart.current={x:ev.clientX-zm.x,y:ev.clientY-zm.y};}
+  function onMM(ev){if(!dragging.current)return;setZm({k:zm.k,x:ev.clientX-dragStart.current.x,y:ev.clientY-dragStart.current.y});}
+  function onMU(){dragging.current=false;}
+
+  /* ---- map svg ---- */
+  var svgK=[h("rect",{key:"bg",width:960,height:600,fill:BG})];
+  sts.forEach(function(f,i){var ab=FP[String(f.id)];var hasSite=fUp.some(function(r){return r.s===ab;});svgK.push(h("path",{key:"s"+i,d:path(f)||"",fill:hasSite?"#3D3D3D":"#333",stroke:"#555",strokeWidth:.5}));});
+  sites.slice().sort(function(a,b){return (lens==="uprate"?b.add-a.add:b.mwe-a.mwe);}).forEach(function(s,i){
+    var pt=proj([s.lon,s.lat]);if(!pt)return;
+    var rad,col;
+    if(lens==="uprate"){var has=s.add>0;rad=has?3+s.add/mxAdd*7:2.5;col=has?GOLD:GRAY;}
+    else{rad=3+s.mwe/mxMwe*8;col=GOLD;}
+    var isSel=sel&&sel.lat===s.lat&&sel.lon===s.lon;var k=[];
+    if(isSel)k.push(h("circle",{key:"sel",cx:pt[0],cy:pt[1],r:rad+5,fill:"none",stroke:GOLD,strokeWidth:2,strokeDasharray:"4,2",style:{animation:"pu 2s infinite"}}));
+    k.push(h("circle",{key:"d",cx:pt[0],cy:pt[1],r:rad,fill:col,stroke:BG,strokeWidth:1,opacity:isSel?1:.88}));
+    if(lens==="cap"&&s.add>0)k.push(h("circle",{key:"hr",cx:pt[0],cy:pt[1],r:rad+2.5,fill:"none",stroke:"rgba(196,160,70,.45)",strokeWidth:1}));  // faint ring = has uprate headroom
+    svgK.push(h("g",{key:"u"+i,style:{cursor:"pointer"},onClick:function(){setSel(s);},onMouseEnter:function(ev){doHov(s,ev);},onMouseLeave:function(){setHov(null);}},k));
+  });
+
+  /* ---- tooltip ---- */
+  var tooltip=null;
+  if(hov&&!sel){var tk=[];
+    tk.push(h("div",{key:"t",style:{fontSize:14,fontWeight:700,color:"#fff"}},hov.ps.length>1?hov.ps[0].n.replace(/ \d+$/,"")+" ("+hov.ps.length+"u)":hov.ps[0].n));
+    tk.push(h("div",{key:"s",style:{fontSize:11,color:"#aaa",fontFamily:"var(--m)",margin:"2px 0 4px"}},hov.st+"\u00b7"+hov.ps[0].t+"\u00b7"+hov.ps[0].lp));
+    tk.push(h("div",{key:"c",style:{fontSize:13,fontWeight:700,color:"#fff"}},Math.round(hov.mwe).toLocaleString()+" MWe net"));
+    tk.push(h("div",{key:"v",style:{fontSize:11,fontWeight:700,color:hov.add>0?GOLD:GRAY,fontFamily:"var(--m)",marginTop:2}},hov.add>0?"+"+Math.round(hov.add).toLocaleString()+" MWt uprate headroom":"Uprate-maxed"));
+    tooltip=h("div",{style:{position:"absolute",left:Math.min(hp.x+14,420),top:Math.max(hp.y-10,10),background:PANEL,border:"1px solid "+GOLD,padding:"10px 14px",pointerEvents:"none",zIndex:10,minWidth:200,maxWidth:320,borderRadius:2}},tk);}
+
+  /* ---- sidebar ---- */
+  var sideContent;
+  if(sel){
+    var hdr=h("div",{key:"hdr",style:{display:"flex",justifyContent:"space-between",marginBottom:12}},
+      h("div",null,h("h2",{style:{fontSize:16,fontWeight:700,margin:0,color:"#fff"}},sel.ps[0].n.replace(/ \d+$/,"")),
+        h("p",{style:{fontSize:11,color:"#999",fontFamily:"var(--m)",margin:"3px 0 0"}},sel.st+"\u00b7"+sel.ps[0].t+"\u00b7"+sel.ps[0].lp)),
+      h("button",{onClick:function(){setSel(null);},style:{background:"none",border:"1px solid #555",color:"#999",padding:"2px 8px",cursor:"pointer",fontFamily:"var(--m)",fontSize:11}},"\u2715"));
+    var all=UP.filter(function(r){return r.lat===sel.lat&&r.lon===sel.lon;});
+    var tA=all.reduce(function(a,r){return a+r.add;},0),tR=all.reduce(function(a,r){return a+r.ref;},0);
+    var body=[];
+    /* fleet attributes first — uprate is one of several */
+    body.push(h("div",{key:"kpi",style:{display:"flex",gap:10,marginBottom:12}},
+      [{l:"Net capacity",v:Math.round(tR/3).toLocaleString()+" MWe"},{l:"Reactors",v:all.length},{l:"Thermal",v:Math.round(tR).toLocaleString()+" MWt"}].map(function(x,i){
+        return h("div",{key:i,style:{flex:1,background:"#262626",border:"1px solid #3a3a3a",padding:"7px 9px",borderRadius:2}},
+          h("div",{style:{fontSize:8.5,color:"#888",fontFamily:"var(--m)",textTransform:"uppercase",letterSpacing:".08em"}},x.l),
+          h("div",{style:{fontSize:13,fontWeight:700,color:"#eee",fontFamily:"var(--m)",marginTop:2}},x.v));})));
+    var rows=all.map(function(r,i){return h("tr",{key:i},
+      h("td",{style:{padding:"3px 6px",borderBottom:"1px solid #444",fontWeight:700,fontSize:11,color:"#ddd"}},r.n),
+      h("td",{style:{padding:"3px 6px",borderBottom:"1px solid #444",textAlign:"right",color:"#aaa"}},r.ref.toLocaleString()),
+      h("td",{style:{padding:"3px 6px",borderBottom:"1px solid #444",textAlign:"right",color:"#aaa"}},(r.up*100).toFixed(1)+"%"),
+      h("td",{style:{padding:"3px 6px",borderBottom:"1px solid #444",textAlign:"right",fontWeight:700,color:r.add>0?GOLD:"#666"}},"+"+Math.round(r.add)));});
+    body.push(h("div",{key:"lbl",style:{fontSize:9,color:"#888",fontFamily:"var(--m)",textTransform:"uppercase",letterSpacing:".08em",margin:"0 0 4px"}},"Per-unit detail \u00b7 uprate headroom"));
+    body.push(h("table",{key:"tbl",style:{width:"100%",borderCollapse:"collapse",fontSize:12,fontFamily:"var(--m)",marginBottom:12}},
+      h("thead",null,h("tr",null,["Unit","Ref MWt","Up%","+MWt"].map(function(x){return h("th",{key:x,style:{textAlign:x==="Unit"?"left":"right",padding:"3px 6px",borderBottom:"2px solid "+GOLD,fontSize:10,color:GOLD}},x);}))),
+      h("tbody",null,rows)));
+    if(tA>0)body.push(h("div",{key:"bar",style:{marginBottom:4}},
+      h("div",{style:{display:"flex",justifyContent:"space-between",fontSize:10,fontFamily:"var(--m)",color:"#888",marginBottom:3}},h("span",null,"Current thermal \u2192 uprate cap"),h("span",{style:{color:GOLD,fontWeight:700}},"+"+Math.round(tA).toLocaleString()+" MWt")),
+      h("div",{style:{height:8,background:"#333",overflow:"hidden",borderRadius:1}},h("div",{style:{height:"100%",background:"linear-gradient(90deg,#666 0%,#666 "+tR/(tR+tA)*100+"%,"+GOLD+" "+tR/(tR+tA)*100+"%,"+GOLD+" 100%)"}}))));
+    sideContent=h("div",{style:{padding:16}},hdr,body);
+  } else {
+    var lk=[h("h3",{key:"hd",style:{fontSize:12,fontWeight:700,margin:"0 0 6px",textTransform:"uppercase",letterSpacing:".08em",color:GOLD}},"U.S. Operating Fleet \u2014 "+sites.length+" sites"),
+      h("div",{key:"hr",style:{borderBottom:"1px solid #555",marginBottom:8}})];
+    sites.slice().sort(function(a,b){return b.mwe-a.mwe;}).forEach(function(s,i){
+      var nm=s.ps.length>1?s.ps[0].n.replace(/ \d+$/,"")+" ("+s.ps.length+"u)":s.ps[0].n;
+      lk.push(h("div",{key:"u"+i,className:"si",onClick:function(){setSel(s);},onMouseEnter:function(ev){doHov(s,ev);},onMouseLeave:function(){setHov(null);}},
+        h("div",{style:{width:8,height:8,borderRadius:"50%",flexShrink:0,background:GOLD}}),
+        h("div",{style:{flex:1,minWidth:0}},
+          h("div",{style:{fontSize:12,fontWeight:700,color:"#ddd"}},nm),
+          h("div",{style:{fontSize:10,color:"#888",fontFamily:"var(--m)"}},s.st+"\u00b7"+s.ps[0].t)),
+        h("div",{style:{textAlign:"right",flexShrink:0}},
+          h("div",{style:{fontFamily:"var(--m)",fontSize:11,fontWeight:700,color:"#eee"}},Math.round(s.mwe).toLocaleString()+" MWe"),
+          h("div",{style:{fontFamily:"var(--m)",fontSize:9.5,color:s.add>0?GOLD:"#666"}},s.add>0?"+"+Math.round(s.add).toLocaleString()+" MWt":"maxed"))));
+    });
+    sideContent=h("div",{style:{padding:12}},lk);
+  }
+
+  /* ---- sync panel ---- */
+  function syncPanel(){
+    var r=sync.res,rows=[];
+    rows.push(h("div",{key:"src",style:{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",marginBottom:10}},
+      h("span",{style:{fontSize:10,color:"#888",fontFamily:"var(--m)"}},"SOURCE"),
+      h(Btn,{on:sync.source==="eia",onClick:function(){setSync(Object.assign({},sync,{source:"eia"}));}},"EIA-860M \u00b7 live"),
+      h(Btn,{on:sync.source==="wd",onClick:function(){setSync(Object.assign({},sync,{source:"wd"}));}},"Wikidata \u00b7 no key")));
+    if(sync.source==="eia")rows.push(h("div",{key:"key",style:{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}},
+      h("input",{type:"password",value:sync.eiaKey,placeholder:"Paste free EIA API key",onChange:function(e){setSync(Object.assign({},sync,{eiaKey:e.target.value}));},
+        style:{flex:"1 1 200px",background:"#262626",border:"1px solid #444",color:"#ddd",padding:"5px 8px",fontFamily:"var(--m)",fontSize:11,borderRadius:2}}),
+      h("a",{href:"https://www.eia.gov/opendata/register.php",target:"_blank",rel:"noopener",style:{fontSize:10,color:GOLD,fontFamily:"var(--m)",alignSelf:"center"}},"get key \u2197")));
+    rows.push(h("div",{key:"go",style:{display:"flex",gap:8,alignItems:"center",marginBottom:10}},
+      h("button",{className:"b bo",disabled:sync.busy||(sync.source==="eia"&&!sync.eiaKey),
+        onClick:function(){if(sync.source==="eia")lsSet("eiakey",sync.eiaKey);runSync(sync.source);},
+        style:{opacity:(sync.busy||(sync.source==="eia"&&!sync.eiaKey))?.5:1}},sync.busy?"Checking fleet\u2026":"Check fleet now"),
+      sync.ts?h("span",{style:{fontSize:10,color:"#888",fontFamily:"var(--m)"}},"last checked "+new Date(sync.ts).toLocaleString()):null));
+    if(sync.err)rows.push(h("div",{key:"err",style:{fontSize:11,color:"#E0857B",fontFamily:"var(--m)",background:"#2a1f1e",border:"1px solid #5a2f2a",padding:"7px 9px",borderRadius:2,marginBottom:10}},"Couldn't reach source: "+sync.err+". Check the key/connection and try again."));
+    if(r){
+      rows.push(h("div",{key:"sum",style:{fontSize:11,color:"#bbb",fontFamily:"var(--m)",marginBottom:10}},
+        "Compared map against "+r.source+". ",
+        h("span",{style:{color:"#4E7A57",fontWeight:700}},r.matched+" matched"),
+        r.add.length?h("span",null," \u00b7 ",h("span",{style:{color:GOLD,fontWeight:700}},r.add.length+" to add")):null,
+        r.pipeline&&r.pipeline.length?h("span",null," \u00b7 ",h("span",{style:{color:"#7Fb0c4",fontWeight:700}},r.pipeline.length+" in pipeline")):null,
+        r.review.length?h("span",null," \u00b7 ",h("span",{style:{color:"#999"}},r.review.length+" to review")):null));
+      function listBlock(title,items,color,fmt){if(!items||!items.length)return null;
+        return h("div",{style:{marginBottom:10}},
+          h("div",{style:{fontSize:9.5,color:color,fontFamily:"var(--m)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:4,fontWeight:700}},title),
+          items.slice(0,12).map(function(it,i){return h("div",{key:i,style:{fontSize:11,color:"#ccc",fontFamily:"var(--m)",padding:"2px 0",borderBottom:"1px solid #2f2f2f"}},fmt(it));}),
+          items.length>12?h("div",{style:{fontSize:10,color:"#777",marginTop:3}},"+"+(items.length-12)+" more"):null);
+      }
+      rows.push(h("div",{key:"add"},listBlock("On live source, not on map \u2014 add",r.add,GOLD,function(it){return it.name+(it.state?" \u00b7 "+it.state:"")+(it.cap?" \u00b7 "+Math.round(it.cap)+" MW":"");})));
+      if(r.pipeline&&r.pipeline.length)rows.push(h("div",{key:"pipe"},listBlock("New authorizations / under construction",r.pipeline,"#7Fb0c4",function(it){return it.name+(it.state?" \u00b7 "+it.state:"")+(it.status?" \u00b7 "+it.status:"");})));
+      rows.push(h("div",{key:"rev"},listBlock("On map, not in live operating set \u2014 review",r.review,"#999",function(it){return it.name+(it.st?" \u00b7 "+it.st:"");})));
+      rows.push(h("div",{key:"note",style:{fontSize:10,color:"#777",fontFamily:"var(--m)",marginTop:6,lineHeight:1.5}},"Sync flags drift for analyst review \u2014 it never overwrites the curated uprate figures, which are hand-built and not published by any feed."));
+    }
+    return h("div",{style:{background:"#202020",border:"1px solid #3a3a3a",borderRadius:2,padding:"14px 16px",marginBottom:12}},rows);
+  }
+
+  /* ---- filter / lens bar ---- */
+  var fb=[h("span",{key:"fl",style:{color:"#888",fontFamily:"var(--m)",fontSize:10,marginRight:4}},"FILTER"),
+    h("div",{key:"type",style:{display:"flex",gap:2}},["All","PWR","BWR"].map(function(v){return h(Btn,{key:v,on:filt.type===v,onClick:function(){setFilt({type:v});}},v);})),
+    h("span",{key:"ll",style:{color:"#888",fontFamily:"var(--m)",fontSize:10,margin:"0 4px 0 10px"}},"SIZE BY"),
+    h("div",{key:"lens",style:{display:"flex",gap:2}},[["cap","Capacity"],["uprate","Uprate headroom"]].map(function(o){return h(Btn,{key:o[0],on:lens===o[0],onClick:function(){setLens(o[0]);}},o[1]);}))];
+
+  /* ---- sync chip ---- */
+  var chipColor=sync.busy?GOLD:sync.err?"#E0857B":(sync.res&&(sync.res.add.length||((sync.res.pipeline||[]).length))?GOLD:"#4E7A57");
+  var chipText=sync.busy?"Syncing fleet\u2026":sync.err?"Sync error":sync.res?((sync.res.add.length||((sync.res.pipeline||[]).length))?(sync.res.add.length+((sync.res.pipeline||[]).length))+" to review":"Fleet current"):"Sync fleet";
+  var chip=h("button",{onClick:function(){setSync(Object.assign({},sync,{open:!sync.open}));},
+    style:{display:"flex",alignItems:"center",gap:7,background:"#202020",border:"1px solid "+chipColor,color:"#ddd",padding:"6px 12px",borderRadius:14,cursor:"pointer",fontFamily:"var(--m)",fontSize:11}},
+    h("span",{style:{width:7,height:7,borderRadius:"50%",background:chipColor,display:"inline-block",animation:sync.busy?"pu 1.2s infinite":"none"}}),
+    h("span",null,chipText),
+    h("span",{style:{color:"#888",fontSize:10}},sync.open?"\u25B2":"\u25BC"));
+
+  return h("div",{style:{minHeight:"100vh",background:BG}},
+    h("header",{style:{background:PANEL,padding:"16px 32px",display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"2px solid "+GOLD,flexWrap:"wrap",gap:12}},
+      h("div",null,
+        h("div",{style:{fontSize:11,fontFamily:"var(--m)",color:"#999",letterSpacing:".15em",textTransform:"uppercase",marginBottom:2}},"Kimley\u00bbHorn"),
+        h("h1",{style:{fontSize:22,fontWeight:700,color:"#fff",margin:0,letterSpacing:".03em"}},"Existing Fleet Map"),
+        h("p",{style:{fontSize:11,color:GOLD,margin:"2px 0 0",fontFamily:"var(--m)"}},"U.S. Operating Nuclear Fleet \u2014 location, capacity & uprate headroom")),
+      h("div",{style:{display:"flex",gap:14,alignItems:"flex-end",flexWrap:"wrap"}},
+        [{l:"Reactors",v:st.u},{l:"Sites",v:st.sites},{l:"Fleet GWe",v:st.gwe},{l:"+Uprate GWe",v:st.up}].map(function(s,i){
+          return h("div",{key:i,style:{minWidth:62,textAlign:"right"}},
+            h("div",{style:{fontSize:9,color:"#888",fontFamily:"var(--m)",textTransform:"uppercase",letterSpacing:".1em"}},s.l),
+            h("div",{style:{fontSize:18,fontWeight:700,color:GOLD,fontFamily:"var(--m)"}},s.v));}),
+        chip)),
+    h("div",{style:{maxWidth:1440,margin:"0 auto",padding:"16px 24px"}},
+      sync.open?syncPanel():null,
+      h("div",{style:{display:"flex",gap:8,alignItems:"center",marginBottom:12,flexWrap:"wrap"}},fb,
+        zm.k!==1?h("button",{className:"b bf",onClick:function(){setZm({k:1,x:0,y:0});},style:{marginLeft:8}},"Reset zoom"):null),
+      h("div",{style:{display:"flex",gap:16,flexWrap:"wrap"}},
+        h("div",{ref:mr,style:{flex:"1 1 700px",background:BG,border:"1px solid #555",position:"relative",overflow:"hidden",cursor:zm.k>1?"grab":"default"},onWheel:onWheel,onMouseDown:onMD,onMouseMove:onMM,onMouseUp:onMU,onMouseLeave:onMU},
+          h("svg",{viewBox:"0 0 960 600",style:{width:"100%",display:"block"}},h("g",{transform:"translate("+zm.x+","+zm.y+") scale("+zm.k+")"},svgK)),
+          tooltip,
+          h("div",{style:{position:"absolute",bottom:8,left:8,display:"flex",gap:10,fontSize:10,fontFamily:"var(--m)",background:"rgba(26,26,26,.9)",padding:"5px 10px",border:"1px solid #555",flexWrap:"wrap",maxWidth:540,color:"#aaa",borderRadius:2}},
+            h("span",{style:{display:"flex",alignItems:"center",gap:3}},h("span",{style:{width:8,height:8,borderRadius:"50%",background:GOLD,display:"inline-block"}})," Operating site"),
+            lens==="uprate"?h("span",{style:{display:"flex",alignItems:"center",gap:3}},h("span",{style:{width:8,height:8,borderRadius:"50%",background:GRAY,display:"inline-block"}})," Uprate-maxed"):h("span",{style:{display:"flex",alignItems:"center",gap:3}},h("span",{style:{width:9,height:9,borderRadius:"50%",border:"1px solid rgba(196,160,70,.6)",display:"inline-block"}})," has headroom"),
+            h("span",{style:{color:"#888"}},"size = "+(lens==="uprate"?"MWt headroom":"net MWe"))),
+          h("div",{style:{position:"absolute",bottom:8,right:8,fontSize:9,color:"#666",fontFamily:"var(--m)"}},"Scroll to zoom \u00b7 Drag to pan")),
+        h("div",{style:{flex:"0 0 320px",maxHeight:600,overflowY:"auto",background:PANEL,border:"1px solid #555",borderRadius:2}},sideContent)),
+      h("footer",{style:{borderTop:"1px solid #555",paddingTop:10,marginTop:16,fontSize:10,color:"#666",textAlign:"center",fontFamily:"var(--m)",lineHeight:1.6}},
+        "Baseline: INL/RPT-24-78810 \u00b7 NEI 2024 Survey \u00b7 DOE Liftoff (2024) \u00b7 Kimley-Horn Nuclear Task Force",
+        h("br"),
+        "Live fleet sync: EIA-860M Inventory of Operable Generators \u00b7 Wikidata"+(sync.ts?" \u00b7 last checked "+new Date(sync.ts).toLocaleDateString():""))));
+}
+ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+
+</script>
+</body>
+</html>
